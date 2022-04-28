@@ -18,13 +18,48 @@ The documentations of two popular, large-scale computer vision datasets---ImageN
 
 ## Getting Started
 ### Installation
-TODO
+1. Create a virtual environment and install required packages via: 
+```
+pip install requirements.txt
+```
+2. For the image description generation clone the repo https://github.com/Aleph-Alpha/magma and follow the installation instructions.
 
 ### Image classification
 TODO
 
 ### Content documentation
-TODO
+1. caption generation
+
+#### (copied from https://github.com/Aleph-Alpha/magma/blob/master/example_inference.py):
+```
+from magma import Magma
+from magma.image_input import ImageInput
+
+temperature = 0.4
+
+model = Magma.from_checkpoint(
+    config_path = "configs/MAGMA_v1.yml",
+    checkpoint_path = "./mp_rank_00_model_states.pt",
+    device = 'cuda:0'
+)
+
+inputs =[
+    ## supports urls and path/to/image
+    ImageInput('https://www.art-prints-on-demand.com/kunst/thomas_cole/woods_hi.jpg'),
+    'Describe the painting:'
+]
+
+## returns a tensor of shape: (1, 149, 4096)
+embeddings = model.preprocess_inputs(inputs)  
+
+## returns a list of length embeddings.shape[0] (batch size)
+output = model.generate(
+    embeddings = embeddings,
+    temperature = temperature
+)  
+
+print(output[0]) ##  A cabin on a lake
+```
 
 ### Reproducibility
 TODO
@@ -42,8 +77,6 @@ If you use this code for your research, please cite the following:
 
 ### TODOS
 
-- save imagenet and openimages text files
 - wordcloud computation
 - notebooks
-- train and validate on smid  
-- fast laion example
+- train and validate on smid
