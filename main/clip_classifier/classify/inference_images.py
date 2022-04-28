@@ -7,14 +7,11 @@ from argparse import Namespace
 
 
 clip_model_name = 'ViT-L/14'
-prompt_path = f'results/{clip_model_name.replace("/", "-")}/prompts.p'
+prompt_path = f'data/{clip_model_name.replace("/", "-")}/prompts.p'
 
 
 def main_imagedataset(input_folder, output_folder):
     """main function"""
-    fs, relative_output_path = fsspec.core.url_to_fs(output_folder)
-    fs.mkdirs(relative_output_path, exist_ok=True)
-
     args = Namespace(
         language_model='Clip_'+clip_model_name,
         model_type='sim',

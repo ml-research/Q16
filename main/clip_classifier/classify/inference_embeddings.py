@@ -15,7 +15,7 @@ def load_safety_prompts(prompt_path):
 
 
 clip_model_name = 'ViT-L/14'
-prompt_path = f'results/{clip_model_name.replace("/", "-")}/prompts.p'
+prompt_path = f'data/{clip_model_name.replace("/", "-")}/prompts.p'
 safety_prompts = load_safety_prompts(prompt_path)
 
 

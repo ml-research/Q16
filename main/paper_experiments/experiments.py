@@ -90,7 +90,7 @@ def load_model(args, save_path):
 def run_model_imagefolder(args, data_set_path, save_dir, types=None):
     torch.set_num_threads(6)
 
-    save_path = os.path.join('./results',
+    save_path = os.path.join('./data',
                              save_dir, 'inappropriate',
                              f'{args.language_model.split("/")[0]}/')
     model, save_path = load_model(args, save_path)

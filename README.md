@@ -24,42 +24,31 @@ pip install requirements.txt
 ```
 2. For the image description generation clone the repo https://github.com/Aleph-Alpha/magma and follow the installation instructions.
 
+3. In /data we provide the learned model parameters (prompts.p) for three different CLIP variants. By default the largest, more recently released, variant is used (ViT-L/14). To reproduce the paper results please use ViT-B/16. 
 ### Image classification
-TODO
+
+- To classify inappropriate image content run
+```
+python main/clip_classifier/classify/inference_images.py --input_folder <path/to/images> --output_folder <path/output>
+```
+The script will search for files with the following suffix and directory structure: '/&ast;.JPEG', '/&ast;.png', '/&ast;.jpg', '/&ast;/&ast;.JPEG', '/&ast;/&ast;.png', '/&ast;/&ast;.jpg'. If you need other data types you can apply changes on the *find_images* method located in *main/paper_experiments/experiments.py*.
+
+- If you already computed the CLIP embeddings you can use the package *embedding-reader* (https://github.com/rom1504/embedding-reader) via 
+```
+pip install embedding_reader
+```
+and run
+
+```
+python main/clip_classifier/classify/inference_embeddings.py --input_folder <path/to/images> --output_folder <path/output>
+```
+
 
 ### Content documentation
 1. caption generation
 
 #### (copied from https://github.com/Aleph-Alpha/magma/blob/master/example_inference.py):
-```
-from magma import Magma
-from magma.image_input import ImageInput
-
-temperature = 0.4
-
-model = Magma.from_checkpoint(
-    config_path = "configs/MAGMA_v1.yml",
-    checkpoint_path = "./mp_rank_00_model_states.pt",
-    device = 'cuda:0'
-)
-
-inputs =[
-    ## supports urls and path/to/image
-    ImageInput('https://www.art-prints-on-demand.com/kunst/thomas_cole/woods_hi.jpg'),
-    'Describe the painting:'
-]
-
-## returns a tensor of shape: (1, 149, 4096)
-embeddings = model.preprocess_inputs(inputs)  
-
-## returns a list of length embeddings.shape[0] (batch size)
-output = model.generate(
-    embeddings = embeddings,
-    temperature = temperature
-)  
-
-print(output[0]) ##  A cabin on a lake
-```
+2. word cloud generation
 
 ### Reproducibility
 TODO
