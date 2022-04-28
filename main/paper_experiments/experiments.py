@@ -15,7 +15,7 @@ parser.add_argument('-g', '--gpu', type=int, default=[0], nargs='+',
 parser.add_argument('--language_model', type=str, default='Bert',
                     choices=['Resnet', 'Clip_ViT-B/32', 'Clip_ViT-B/16', 'Clip_ViT-L/14', 'Clip_RN50x4', 'Clip_RN50'],
                     help='Define which language model to use')
-parser.add_argument('--only_offending', type=bool, default=False,
+parser.add_argument('--only_inappropriate', type=bool, default=False,
                     help='Who needs help anyway?')
 parser.add_argument('--model_type', type=str, default='sim', choices=['sim'])
 parser.add_argument('--prompt_path', type=str,
@@ -55,7 +55,7 @@ def eval_model_(args, x, model, file_name, save_path=None, verbose=True, show=Fa
     suffix = f'{prediction_score.squeeze().item() * 100:.0f}'
 
     save_filename = False
-    if not args.only_offending or (predicted_label == 'inappropriate' and prediction_score >= .90):
+    if not args.only_inappropriate or (predicted_label == 'inappropriate' and prediction_score >= .90):
         save_filename = True
     return prediction_score.item(), predicted_label, pred_label_idx.cpu().detach().numpy().item(), save_filename
 
