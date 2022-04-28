@@ -22,7 +22,7 @@ The documentations of two popular, large-scale computer vision datasets---ImageN
 ```
 pip install requirements.txt
 ```
-2. For the image description generation clone the repo https://github.com/Aleph-Alpha/magma and follow the installation instructions.
+2. For the image description generation clone the repo *https://github.com/Aleph-Alpha/magma* and follow the installation instructions.
 
 3. In /data we provide the learned model parameters (prompts.p) for three different CLIP variants. By default the largest, more recently released, variant is used (ViT-L/14). To reproduce the paper results please use ViT-B/16. 
 ### Image classification
@@ -43,15 +43,19 @@ and run
 python main/clip_classifier/classify/inference_embeddings.py --input_folder <path/to/images> --output_folder <path/output>
 ```
 
-
 ### Content documentation
-1. caption generation
+1. Caption generation
+An example on how to generate image captions is provided in *main/caption_generation/magma_inference.py* . 
+This requires the repo *https://github.com/Aleph-Alpha/magma* (see Installation section)
 
-#### (copied from https://github.com/Aleph-Alpha/magma/blob/master/example_inference.py):
-2. word cloud generation
 
-### Reproducibility
-TODO
+2. Wordcloud generation
+
+
+## Reproducibility 
+The results of the SMID-based evaluation as well as the imagenet and openimages documentations are included in the *data/* directory. 
+Further, we provide notebooks to reproduce the figures included in the paper in *main/paper_experiments/notebooks*.
+
 
 ## Citation
 If you use this code for your research, please cite the following:
