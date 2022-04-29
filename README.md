@@ -47,13 +47,28 @@ python main/clip_classifier/classify/inference_embeddings.py --input_folder <pat
 1. Caption generation
 An example on how to generate image captions is provided in *main/caption_generation/magma_inference.py* . 
 This requires the repo *https://github.com/Aleph-Alpha/magma* (see Installation section)
-
+For the wordcloud generation save the caption image pairs as csv with "\t" as seperator: <image_id> \t <caption>
 
 2. Wordcloud generation
+Script to generate wordclouds are contained in *main/wordclouds*.
+ 
+- Wordclouds based on dataset annotations:
+    - add your dataset to line 31 in *main/wordclouds/wc_dataset_annotations.py*
+    - run:
+```
+python main/wordclouds/wc_dataset_annotations.py --dataset <name_of_your_dataset> --dataset_path <path/to/data> --csv_path <path/to/list/inappropriate-imagesids>
+```
+
+- Wordclouds based on generated captions:
+```
+python main/wordclouds/wc_weighted_captions.py --load_path path/to/dir/with/text_noninapp.csv/and/text_inapp.csv
+python main/wordclouds/wc_captions.py --load_path path/to/file/text_inapp.csv
+```
 
 
 ## Reproducibility 
 The results of the SMID-based evaluation as well as the imagenet and openimages documentations are included in the *data/* directory. 
+Scripts classify inapproriate content contained in the dataset imagenet and openimages are provided in *main/paper_experiments/check_datasets* and to generate the wordclouds are provided in *main/paper_experiments/compute_wordclouds*.
 Further, we provide notebooks to reproduce the figures included in the paper in *main/paper_experiments/notebooks*.
 
 
@@ -69,7 +84,5 @@ If you use this code for your research, please cite the following:
 ```
 
 ### TODOS
-
-- wordcloud computation
-- notebooks
+- upload generated captions
 - train and validate on smid
