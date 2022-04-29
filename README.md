@@ -67,8 +67,10 @@ python main/wordclouds/wc_captions.py --load_path path/to/file/text_inapp.csv
 
 
 ## Reproducibility 
-The results of the SMID-based evaluation as well as the imagenet and openimages documentations are included in the *data/* directory. 
-Scripts classify inapproriate content contained in the dataset imagenet and openimages are provided in *main/paper_experiments/check_datasets* and to generate the wordclouds are provided in *main/paper_experiments/compute_wordclouds*.
+The results of the SMID-based evaluation as well as the imagenet and openimages documentations are included in the *data/* directory.
+Generated captions for imagenet and openimages can be downloaded here https://hessenbox.tu-darmstadt.de/getlink/fiDKWESMQkVM8zCGkHyNt92r/ and need to be placed in *data/*.
+
+Scripts to classify inapproriate content contained in the dataset imagenet and openimages are provided in *main/paper_experiments/check_datasets* and to generate the wordclouds are provided in *main/paper_experiments/compute_wordclouds*.
 Further, we provide notebooks to reproduce the figures included in the paper in *main/paper_experiments/notebooks*.
 
 
