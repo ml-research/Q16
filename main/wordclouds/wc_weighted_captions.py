@@ -13,7 +13,7 @@ args = parser.parse_args()
 caption_text_noninapp = load_captions_from_csv(os.path.join(args.load_path, 'text_noninapp.csv'))
 caption_text_inapp = load_captions_from_csv(os.path.join(args.load_path, 'text_inapp.csv'))
 
-caption_text_other = caption_text_inapp
+caption_text_other = caption_text_noninapp
 
 print('Splitted off and nonoff')
 collocation_threshold=30

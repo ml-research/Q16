@@ -65,7 +65,3 @@ path_inappText = os.path.join(os.path.dirname(args.csv_path), "text_inapp.csv")
 path_noninappText = os.path.join(os.path.dirname(args.csv_path), "text_noninapp.csv")
 np.savetxt(path_noninappText, res_noninapp, delimiter="\t", fmt='%s')
 np.savetxt(path_inappText, res_inapp, delimiter="\t", fmt='%s')
-
-
-caption_text_noninapp = caption_text_noninapp#.replace('white white', 'white')
-caption_text_inapp = caption_text_inapp#.replace('white white', 'white')
