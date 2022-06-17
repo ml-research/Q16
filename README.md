@@ -13,10 +13,13 @@ The documentations of two popular, large-scale computer vision datasets---ImageN
 
 <a href="https://arxiv.org/abs/2202.06675"><img src="https://img.shields.io/badge/arxiv-2202.06675-red" height=22.5></a>
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" height=22.5></a>
+<a href="https://colab.research.google.com/drive/1_JoaTV-E83ejcjcT4FlMG0_lg_8YODPZ?usp=sharing"><img src="https://img.shields.io/badge/Notebook-Colab-green" height=22.5></a>
 
 <img src="docs/inapp_concepts.jpg" width="800px">
 
 ## Getting Started
+
+You can find a simple example on how to use the inappropriate content detector here: [Colab](https://colab.research.google.com/drive/1_JoaTV-E83ejcjcT4FlMG0_lg_8YODPZ?usp=sharing)
 ### Installation
 1. Create a virtual environment and install required packages via: 
 ```

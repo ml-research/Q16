@@ -13,9 +13,13 @@ import torch
 import PIL
 import glob
 from numpy import genfromtxt
+import multiprocessing
+import itertools
+from tqdm.contrib.concurrent import process_map
 
 wc_max_font_size = 40
 wc_width, wc_height = 400, 300
+
 
 def compute_chisquared(observed, expected, use_not_expected=False):
     expected_elems = [item[0] for item in expected.items()]
@@ -23,7 +27,7 @@ def compute_chisquared(observed, expected, use_not_expected=False):
     weighted_freq = dict()
     sum_chisquared = 0
     cnt = 0
-    for item in observed.items():
+    for item in tqdm(observed.items()):
         freq_diff = 0
         if item[0] in expected_elems:
             expected_value = expected[item[0]]
@@ -42,12 +46,56 @@ def compute_chisquared(observed, expected, use_not_expected=False):
     return weighted_freq, sum_chisquared, cnt
 
 
-def weighted_wc(caption_text_inappr, caption_text_other, save_path, use_bigrams=True, collocation_threshold=30):
-    wc_noninapp = wc_text(caption_text_other, 10000000, save_path=None,
-                        collocations=use_bigrams, collocation_threshold=collocation_threshold)
-    wc_inapp = wc_text(caption_text_inappr, 10000000, save_path=None,
-                     collocations=use_bigrams, collocation_threshold=collocation_threshold)
+def _compute_chisquared_item(item, expected, expected_elems, weighted_freq):
+    # print('Test', item)
+    freq_diff = 0
+    if item[0] in expected_elems:
+        expected_value = expected[item[0]]
+    else:
+        expected_value = 100.0
 
+    if item[1] >= expected_value:
+        freq_diff = ((item[1] - expected_value) ** 2) / (expected_value)
+
+    weighted_freq[item[0]] = freq_diff
+    # return 0#freq_diff
+
+
+def func_star(a_b):
+    return _compute_chisquared_item(*a_b)
+
+
+def compute_chisquared_parallel(observed, expected, use_not_expected=False,
+                                max_workers=5,chunksize=100000):
+    expected_elems = [item[0] for item in expected.items()]
+    # expected_value_min = np.min([item[1] for item in expected.items()])
+    # pool = multiprocessing.Pool(4)
+
+    # res = process_map(_compute_chisquared_item, observed.items(), max_workers=max_workers, chunksize=1000)
+    with multiprocessing.Manager() as manager:
+        weighted_freq = manager.dict()
+        with manager.Pool(processes=max_workers) as p:
+            with tqdm(total=len(observed.items())) as pbar:
+                for _ in p.imap_unordered(func_star, zip(observed.items(),
+                                                         itertools.repeat(expected),
+                                                         itertools.repeat(expected_elems),
+                                                         itertools.repeat(weighted_freq)),
+                                          chunksize=chunksize):
+                    pbar.update()
+        # pool.map(calc_stuff, range(0, 10 * offset, offset))
+        weighted_freq_res = dict(weighted_freq)
+        # print(weighted_freq_res.values()[:10])
+    return weighted_freq_res, None, None  # weighted_freq_res, None, None
+
+
+def weighted_wc(caption_text_inappr, caption_text_other, save_path, use_bigrams=True, collocation_threshold=30,
+                verbose=False):
+    wc_noninapp = wc_text(caption_text_other, 10000000, save_path=None,
+                          collocations=use_bigrams, collocation_threshold=collocation_threshold)
+    wc_inapp = wc_text(caption_text_inappr, 10000000, save_path=None,
+                       collocations=use_bigrams, collocation_threshold=collocation_threshold)
+
+    print('done calc. word freq.')
     print([(item[0], item[1]) for item in wc_inapp.words_.items()][:20])
     print('----')
     print([(item[0], item[1]) for item in wc_noninapp.words_.items()][:20])
@@ -55,18 +103,20 @@ def weighted_wc(caption_text_inappr, caption_text_other, save_path, use_bigrams=
     relative_scaling = 0.25  # 'auto'
     use_not_expected = False
 
+    print('compute chi-squared weights')
     weighted_freq, sum_chisquared, cnt_chisquared = compute_chisquared(wc_inapp.words_,
                                                                        wc_noninapp.words_,
                                                                        use_not_expected=use_not_expected)
     file_name = os.path.join(save_path,
                              f"wc_weighted_chi-squared_scaling{str(relative_scaling).replace('.', '-')}.png")
+
+    print('compute final wordcloud')
     wc = wc_freq(weighted_freq, max_words=500, relative_scaling=relative_scaling,
-                 save_path=file_name,
-                 show=False)
+                 save_path=None if verbose else file_name,
+                 show=verbose)
 
     print('Chisquared freq', sum_chisquared / cnt_chisquared)
     print(list(wc.words_.items())[:20])
-
 
 
 def getFrequencyDictForText(sentence, regex_words, word_boundary=False):
@@ -84,6 +134,7 @@ def getFrequencyDictForText(sentence, regex_words, word_boundary=False):
     for key in tmpDict:
         fullTermsDict.add(key, tmpDict[key])
     return fullTermsDict
+
 
 def getFrequencyDictForImgTextPairs(img_text_dict, regex_words, word_boundary=False):
     fullTermsDict = multidict.MultiDict()
@@ -113,6 +164,7 @@ def getFrequencyDictForImgTextPairs(img_text_dict, regex_words, word_boundary=Fa
         fullTermsDict.add(key, tmpDict[key])
     return fullTermsDict, img_cnt_dict
 
+
 def makeImage(text, relative_scaling=0.1):
     wc = WordCloud(max_font_size=wc_max_font_size, background_color="white", max_words=1000, colormap='Dark2',
                    width=wc_width, height=wc_height, relative_scaling=relative_scaling)
@@ -132,7 +184,9 @@ def wc_text(text, max_words, save_path=None, show=False, collocations=False, col
 
 def plot_wc(wc, save_path=None, show=False):
     if save_path is not None:
-        wc.to_file(save_path)
+        img = wc.to_image()
+        img.save(save_path, quality=95, optimize=True)
+        # wc.to_file(save_path)
     if show:
         plt.figure()
         plt.imshow(wc, interpolation="bilinear")
@@ -140,10 +194,11 @@ def plot_wc(wc, save_path=None, show=False):
         plt.show()
 
 
-def wc_freq(freq, max_words, save_path=None, show=False, relative_scaling='auto'):
-    wc = WordCloud(max_font_size=wc_max_font_size, max_words=max_words, width=wc_width, height=wc_height,
+def wc_freq(freq, max_words, save_path=None, show=False, relative_scaling='auto',
+            _wc_width=wc_width, _wc_height=wc_height, res=(1, 1), scale=1):
+    wc = WordCloud(max_font_size=wc_max_font_size, max_words=max_words, width=_wc_width, height=_wc_height,
                    relative_scaling=relative_scaling, collocations=False,
-                   background_color="white", colormap='Dark2')
+                   background_color="white", colormap='Dark2', scale=scale)
     wc.generate_from_frequencies(freq)
     plot_wc(wc, save_path, show)
     return wc
@@ -158,7 +213,7 @@ def wc_caption(text_captions, temps, save_path):
     # store to file
     if temps is not None:
         file_name = os.path.join(save_path,
-                     f"wordcloud_caption_freq_temp{str(temps)}.png")
+                                 f"wordcloud_caption_freq_temp{str(temps)}.png")
     else:
         file_name = os.path.join(save_path,
                                  "wordcloud_caption_freq.png")
@@ -176,7 +231,7 @@ def wc_caption(text_captions, temps, save_path):
 
 def wc_bad_words_from_imgpaths(img_text_dict, regex, save_path=None, save_path_suffix='', show=False):
     freq_dict, imgpath_counts = getFrequencyDictForImgTextPairs(img_text_dict,
-                                        regex, word_boundary=True)
+                                                                regex, word_boundary=True)
     wordcloud_caption_bad_freq = makeImage(freq_dict, relative_scaling=0.3)
 
     save_path_file = os.path.join(save_path, f"wordcloud_badwords{save_path_suffix}.png")
@@ -318,7 +373,7 @@ def load_offensive_captions(caption_paths, csv_path):
         img_text = load_captions(caption_paths)
         img_path_offending = readoffendingimages_csv(csv_path, threshold=.5)
 
-        #temps = list(img_text.keys())
+        # temps = list(img_text.keys())
         temps = [0.1, 0.4]
         cnt_captions = 0
         tmp_paths = []
@@ -435,10 +490,12 @@ def load_captions(file_path):
             img_text[temp][d_key] = data[d_key]
     return img_text
 
+
 def load_captions_from_csv(file_path):
-    data = genfromtxt(file_path, delimiter='\t', dtype=str)
+    data = genfromtxt(file_path, delimiter='\t', dtype=str, deletechars="~!@#$%^&*()-=+~\|]}[{';: /?.>,<.")
     data = data[:, 1]
     return ' '.join(data)
+
 
 def class_annotation_imagenet(images, dataset_path="/workspace/datasets/imagenet1k/"):
     imagenet_dir_class = dict()
