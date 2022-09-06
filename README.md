@@ -1,5 +1,7 @@
 # Can Machines Help Us Answering Question 16 in Datasheets, and In Turn Reflecting on Inappropriate Content?
 
+FAccT 2022 paper: https://dl.acm.org/doi/10.1145/3531146.3533192
+
 > **Can Machines Help Us Answering Question 16 in Datasheets, and In Turn Reflecting on Inappropriate Content?**
 >
 > Patrick Schramowski, Christopher Tauchmann, Kristian Kersting
