@@ -25,7 +25,7 @@ You can find a simple example on how to use the inappropriate content detector h
 ### Installation
 1. Create a virtual environment and install required packages via: 
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 2. For the image description generation clone the repo *https://github.com/Aleph-Alpha/magma* and follow the installation instructions.
 
